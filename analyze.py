@@ -1,8 +1,6 @@
-# Importing libraries
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Dataset with season-long QBR and defensive rank for each Super Bowl-winning QB
 season_data = {
     "Year": list(range(2004, 2024)),
     "Quarterback": [
@@ -20,24 +18,30 @@ season_data = {
     ]
 }
 
-# Convert to DataFrame
 df_season = pd.DataFrame(season_data)
 
-# Plotting Season QBR vs Defensive Rank
-plt.figure(figsize=(12, 8))
-plt.scatter(df_season["Season QBR"], df_season["Defensive Rank"], color='b', marker='o')
+mean_qbr = df_season["Season QBR"].mean()
+mean_def_rank = df_season["Defensive Rank"].mean()
 
-# Adding QB names with Super Bowl year at each point
+low_qbr_high_def = df_season[(df_season["Season QBR"] < mean_qbr) & (df_season["Defensive Rank"] <= mean_def_rank)]
+percent_low_qbr_high_def = (len(low_qbr_high_def) / len(df_season)) * 100
+
+high_qbr_low_def = df_season[(df_season["Season QBR"] > mean_qbr) & (df_season["Defensive Rank"] > mean_def_rank)]
+percent_high_qbr_low_def = (len(high_qbr_low_def) / len(df_season)) * 100
+
+plt.figure(figsize=(12, 8))
+plt.scatter(df_season["Season QBR"], df_season["Defensive Rank"], color='grey', marker='o', label="All Teams")
+plt.scatter(low_qbr_high_def["Season QBR"], low_qbr_high_def["Defensive Rank"], color='blue', marker='o', label="Low QBR & High Def Rank")
+plt.scatter(high_qbr_low_def["Season QBR"], high_qbr_low_def["Defensive Rank"], color='red', marker='o', label="High QBR & Low Def Rank")
+
 for i, txt in enumerate(df_season["Quarterback"]):
     label = f"{txt} ({df_season['Year'][i]})"
-    plt.annotate(label, (df_season["Season QBR"][i], df_season["Defensive Rank"][i]), fontsize=9, ha='right')
+    plt.annotate(label, (df_season["Season QBR"][i], df_season["Defensive Rank"][i]), fontsize=8, ha='right')
 
-# Adding title and axis labels
 plt.title("Season QBR vs Defensive Rank for Super Bowl Winning Teams (2004–2023)")
 plt.xlabel("Season QBR")
 plt.ylabel("Defensive Rank (Lower is Better)")
-plt.gca().invert_yaxis()  # Invert y-axis to show lower ranks at the top
+plt.gca().invert_yaxis()
 plt.grid()
-
-# Display the plot
+plt.legend()
 plt.show()
